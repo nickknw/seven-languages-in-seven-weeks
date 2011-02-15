@@ -1,4 +1,13 @@
+# Find:
+# 1. A method that substitutes a part of a string
+puts "\nFind:"
+puts "\n1."
+puts "BAM".gsub "M", "TMAN"
+
+
+# Do:
 # 1. Print the string "Hello World"
+puts "\nDo:" 
 puts "\n1."
 puts "Hello World"
 
