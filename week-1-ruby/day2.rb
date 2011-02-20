@@ -80,6 +80,7 @@ puts "and"
 
 sixteen_numbers.each_slice(4) { |slice| p slice }
 
+
 # 2. The Tree class was interesting, but it did not allow you to specify a new
 # tree with a clean user interface. Let the initializer accept a nested
 # structure with hashes and arrays. You should be able to specify a tree like
@@ -125,3 +126,17 @@ tree_test2 = Tree.new({"Ruby" =>
 
 tree_test.visit_all { |node| p node.node_name }
 tree_test2.visit_all { |node| p node.node_name }
+
+
+# 3. Write a simple grep that will print the lines of a file having any
+# occurrences of a phrase anywhere in that line. you will need to do a simple
+# regular expression match and read lines from a file. (This is surprisingly
+# simple in Ruby.) If you want, include line numbers.
+def rbgrep(pattern, filename) 
+    regexp = Regexp.new(pattern)
+    File.foreach(filename).with_index { |line, line_num|
+        puts "#{line_num}: #{line}" if regexp =~ line
+    }
+end
+
+rbgrep("guitar", "wikipedia_page.txt")
