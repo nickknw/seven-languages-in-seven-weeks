@@ -98,7 +98,7 @@ class Tree
         end
         
         if children.respond_to?('keys') then
-            children = children.map {|name, grandchildren| Tree.new(name, grandchildren) }
+            children = children.map {|child_name, grandchildren| Tree.new(child_name, grandchildren) }
         end
 
         @node_name = name
@@ -106,8 +106,8 @@ class Tree
     end
 
     def visit_all(&block)
-        visit &block
-        children.each {|c| c.visit_all &block}
+        visit(&block)
+        children.each {|c| c.visit_all(&block)}
     end
 
     def visit(&block)
