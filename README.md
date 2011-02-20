@@ -1,5 +1,5 @@
 Exercises from *Seven Languages in Seven Weeks*
------------------------------------------------
+===============================================
 
 As I work through the exercises in the book [*Seven Languages in Seven
 Weeks*](http://www.pragprog.com/titles/btlang/seven-languages-in-seven-weeks) by
