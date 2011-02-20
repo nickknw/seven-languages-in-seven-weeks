@@ -91,18 +91,17 @@ class Tree
 
     def initialize(name, children=[])
         if name.respond_to?('keys') then
-            name = name.flatten
-            @node_name = name[0]
-            children = name[1]
-            p children
-            if children.nil?
-            @children = children.each {|k,v| Tree.new({k => v}) }
+            root_node = name.first
+            name = root_node[0]
+            children = root_node[1]
+        end
+        
+        if children.respond_to?('keys') then
+            children = children.map {|name, grandchildren| Tree.new(name, grandchildren) }
         end
 
         @node_name = name
-        if( children != [] ) then
-            @children = Tree.new(children)
-        end 
+        @children = children
     end
 
     def visit_all(&block)
