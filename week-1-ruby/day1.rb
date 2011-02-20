@@ -14,7 +14,7 @@ puts "Hello World"
 # 2. For the string "Hello, Ruby," find the index of the word "Ruby."
 # literally:
 puts "\n2."
-puts "Hello, Ruby,".index "Ruby." 
+p "Hello, Ruby,".index "Ruby." 
 # realistically:
 puts "Hello, Ruby".index "Ruby"
 
