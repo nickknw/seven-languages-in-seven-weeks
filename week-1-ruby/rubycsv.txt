@@ -1,2 +1,13 @@
-one, two
-lions, tigers
+one, two, three, four
+lions, tigers, bear, ohmy
+han, leia, darth vader, luke
+chewbacca, luke skywalker, yoda, han solo
+r2 d2, c 3po, boba fett, princess leia
+anakin skywalker, stormtrooper, lando calrissian, darth maul
+leia organa, mace windu, general grievous, artoo
+threepio, palpatine, jango fett, wedge antilles
+jawa, admiral ackbar, count dooku, x wing
+emperor palpatine, r2d2, amidala, stormtroopers
+darth sidious, otros, c3 po, mon mothma
+bail organa, troopers, ewoks, c3po
+vader, inflatable lightsaber, landspeeder, obi wan

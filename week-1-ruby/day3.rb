@@ -16,24 +16,29 @@ module ActsAsCsv
     end
 
     module InstanceMethods
-        attr_accessor :headers, :csv_contents
+
+        attr_accessor :headers, :csv_rows
 
         def read
             file = File.new(self.class.to_s.downcase + '.txt')
             @headers = file.gets.chomp.split(', ')
 
             file.each do |row|
-                @csv_contents << row.chomp.split(', ')
+                csv_contents = row.chomp.split(', ')
+                @csv_rows << CsvRow.new(@headers, csv_contents)
             end
         end
 
         def initialize
-            @csv_contents = []
+            @csv_rows = []
             read
         end
 
-    end
+        def each &block
+            @csv_rows.each &block
+        end
 
+    end
 
     class CsvRow
         attr_accessor :header_row, :content_row
@@ -42,13 +47,12 @@ module ActsAsCsv
             @header_row = header_row
             @content_row = content_row
         end
-        
-        def self.method_missing name, *args
-            index = @header_row.index(name.to_s)
-            return content[index]
+
+        def method_missing name, *args
+            content_index = @header_row.index(name.to_s)
+            return @content_row[content_index]
         end
     end
-
 end
 
 class RubyCsv 
