@@ -49,7 +49,7 @@ addUp2DArray(list(2,3, list(1,1,1), 4,5)) println
 # Easy way:
 List myAverage := method(self average)
 
-# Probably the way he meant:
+# Probably the way he meant (plus bonus):
 List myAverage2 := method(
     containsNonDigit := select(x, x asNumber() isNan()) size > 0
     if(containsNonDigit, Exception raise("An item in the list is not a number"))
@@ -59,4 +59,38 @@ List myAverage2 := method(
 )
 
 list(1,2,3,4) myAverage2 println
-list(1,2,3,4,"a") myAverage2 println
+#list(1,2,3,4,"a") myAverage2 println
+
+# 5. Write a prototype for a two-dimensional list. The dim(x,y) method should
+# allocate a list of y lists that are x elements long, set(x, y, value) should
+# set a value, and get(x, y) should return that value.
+#
+List2D := List clone
+List2D dim := method(x, y, 
+    outer := list()
+    y repeat(
+        inner := list()
+        x repeat(inner push(nil))
+        outer push(inner) 
+    ) 
+    return outer
+)
+
+# Hmmm, let's try this again
+
+newList := method(size, contents, 
+    list := list()
+    size repeat(list push(contents))
+    return list
+)
+
+newListR := method(size, contents,
+    if(size==1, return list(contents),
+    return list(contents) push(newListR(size-1, contents))
+)
+
+List2D dim2 := method(x,y,
+    newList(y, newList(x, nil))
+)
+
+
