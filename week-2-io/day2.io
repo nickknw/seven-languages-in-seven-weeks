@@ -66,31 +66,73 @@ list(1,2,3,4) myAverage2 println
 # set a value, and get(x, y) should return that value.
 #
 List2D := List clone
+
 List2D dim := method(x, y, 
-    outer := list()
     y repeat(
         inner := list()
         x repeat(inner push(nil))
-        outer push(inner) 
+        self append(inner) 
     ) 
-    return outer
 )
 
 # Hmmm, let's try this again
 
-newList := method(size, contents, 
-    list := list()
-    size repeat(list push(contents))
-    return list
+# Make sure you have this pull request before using this one
+# https://github.com/stevedekorte/io/pull/85
+List2D dim2 := method(x, y,
+    y repeat(self append(Range 0 to(x) asList() map(nil)))
 )
 
-newListR := method(size, contents,
-    if(size==1, return list(contents),
-    return list(contents) push(newListR(size-1, contents))
+firstMatrix := List2D clone
+firstMatrix dim(6,7) println
+"" println
+
+secondMatrix := List2D clone
+secondMatrix dim2(6,7) println
+"" println
+
+# The below will cause infinite loop until you apply the change in the pull
+# request above
+testBounds := List2D clone
+testBounds dim2(0, 2)
+testBounds dim2(0, 2)
+
+List2D set := method(x, y, value,
+    self at(x) atPut(y, value)
 )
 
-List2D dim2 := method(x,y,
-    newList(y, newList(x, nil))
+List2D get := method(x, y, 
+    self at(x) at(y)
 )
+
+firstMatrix set(2,4,"asdfad")
+firstMatrix println
+"" println
+
+firstMatrix get(2,4) println
+firstMatrix get(1,2) println
+
+# 6. Bonus: Write a transpose method so that (new_matrix get(y, x)) == 
+# matrix get(x,) on the original list
+List2D transpose := method(
+   self origGet := List2D getSlot("get")
+   self get = method(x, y, origGet(y, x))
+   
+   self origSet := List2D getSlot("set")
+   self set = method(x, y, origSet(y, x))
+)
+
+"2, 4: " print
+firstMatrix get(2,4) println
+"4, 2: " print
+firstMatrix get(4,2) println
+"transpose" println
+firstMatrix transpose
+"2, 4: " print
+firstMatrix get(2,4) println
+"4, 2: " print
+firstMatrix get(4,2) println
+
+# 7. Write the matrix to a file, and read a matrix from a file.
 
 
