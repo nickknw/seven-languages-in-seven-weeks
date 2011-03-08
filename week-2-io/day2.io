@@ -18,10 +18,15 @@ fib_loop := method(num,
     )
     old
 )
+"Fib 0" println
+fib_recur(0) println
+fib_loop(0) println
 
+"Fib 4" println
 fib_recur(4) println
 fib_loop(4) println
 
+"Fib 8" println
 fib_recur(8) println
 fib_loop(8) println
 
@@ -33,12 +38,14 @@ Number origDiv := Number getSlot("/")
 # Overriding the / method is surprisingly straightforward
 Number / = method(denom, if(denom == 0, 0, self origDiv(denom)))
 
+"Testing division" println
 4 / 2 println
 4 / 0 println
 
 # 3. Write a program to add up all of the numbers in a two-dimensional array.
 addUp2DArray := method(array, array flatten reduce(+))
 
+"add up 2d array" println
 addUp2DArray(list(2,3,4,5)) println
 addUp2DArray(list(2,3, list(1,1,1), 4,5)) println
 
@@ -58,6 +65,7 @@ List myAverage2 := method(
     flatList reduce(+) / flatList size
 )
 
+"Averaging the numbers in a list" println
 list(1,2,3,4) myAverage2 println
 #list(1,2,3,4,"a") myAverage2 println
 
@@ -83,6 +91,7 @@ List2D dim2 := method(x, y,
     y repeat(self append(Range 0 to(x) asList() map(nil)))
 )
 
+"Creating matrices" println
 firstMatrix := List2D clone
 firstMatrix dim(6,7) println
 "" println
@@ -105,6 +114,7 @@ List2D get := method(x, y,
     self at(x) at(y)
 )
 
+"Setting and getting a matrix" println
 firstMatrix set(2,4,"asdfad")
 firstMatrix println
 "" println
@@ -122,6 +132,7 @@ List2D transpose := method(
    self set = method(x, y, origSet(y, x))
 )
 
+"Transposing a matrix" println
 "2, 4: " print
 firstMatrix get(2,4) println
 "4, 2: " print
@@ -135,6 +146,7 @@ firstMatrix get(4,2) println
 
 # 7. Write the matrix to a file, and read a matrix from a file.
 
+"Writing and reading a matrix from a file" println
 file := File with("matrix.txt")
 file remove
 file openForUpdating
@@ -154,6 +166,7 @@ matrixFromFile println
 # 1-100. If you would like, give a hint of "hotter" or "colder" after the first
 # guess.
 
+"Random number guesser" println
 randomNumber := ((Random value) * 100 + 1) floor
 
 i := 0
