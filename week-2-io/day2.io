@@ -149,3 +149,24 @@ lines at(0) type println
 matrixFromFile := lines at(0) split(", ")
 matrixFromFile type println
 matrixFromFile println
+
+# 8. Write a program that gives you ten tries to guess a random number from
+# 1-100. If you would like, give a hint of "hotter" or "colder" after the first
+# guess.
+
+randomNumber := ((Random value) * 100 + 1) floor
+
+i := 0
+guess := 0
+while(i < 10 and guess != randomNumber,
+    ("Guess a number between 1 and 100: (guess " .. i+1 .. " of 10): ") print
+    guess = ReadLine readLine
+    guess = if(guess asNumber isNan, 0, guess asNumber)
+    if(guess > randomNumber, "Too high" println)
+    if(guess < randomNumber, "Too low" println)
+    i = i + 1
+)
+
+if(guess == randomNumber, 
+    "Congrats, you did it!" println, 
+    "Too bad, maybe next time" println)
