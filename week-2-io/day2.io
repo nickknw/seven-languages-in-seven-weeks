@@ -4,7 +4,7 @@
 # is 3. As a bonus, solve the problem with recursion and with loops.
 
 fib_recur := method(num, 
-    if(num <= 2, 1, fib_recur(num - 1) + fib_recur(num - 2) )
+    if(num <= 1, num, fib_recur(num - 1) + fib_recur(num - 2) )
 )
 
 fib_loop := method(num, 
