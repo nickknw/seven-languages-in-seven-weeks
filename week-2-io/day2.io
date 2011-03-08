@@ -77,8 +77,8 @@ List2D dim := method(x, y,
 
 # Hmmm, let's try this again
 
-# Make sure you have this pull request before using this one
-# https://github.com/stevedekorte/io/pull/85
+# Make sure you have this commit before using this solution
+# https://github.com/stevedekorte/io/commit/4907d9d618499daa8973c0db380317678c0abd51
 List2D dim2 := method(x, y,
     y repeat(self append(Range 0 to(x) asList() map(nil)))
 )
@@ -91,8 +91,8 @@ secondMatrix := List2D clone
 secondMatrix dim2(6,7) println
 "" println
 
-# The below will cause infinite loop until you apply the change in the pull
-# request above
+# The below will cause infinite loop until you apply the change in the
+# commit above
 testBounds := List2D clone
 testBounds dim2(0, 2)
 testBounds dim2(0, 2)
