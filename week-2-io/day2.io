@@ -135,4 +135,17 @@ firstMatrix get(4,2) println
 
 # 7. Write the matrix to a file, and read a matrix from a file.
 
+file := File with("matrix.txt")
+file remove
+file openForUpdating
+file write(firstMatrix join(", "))
+file close
 
+file = File with("matrix.txt")
+file openForReading
+lines := file readLines
+file close
+lines at(0) type println
+matrixFromFile := lines at(0) split(", ")
+matrixFromFile type println
+matrixFromFile println
