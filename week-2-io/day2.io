@@ -74,6 +74,7 @@ list(1,2,3,4) myAverage2 println
 # set a value, and get(x, y) should return that value.
 #
 List2D := List clone
+List2D transposed := false
 
 List2D dim := method(x, y, 
     y repeat(
@@ -123,26 +124,41 @@ firstMatrix get(2,4) println
 firstMatrix get(1,2) println
 
 # 6. Bonus: Write a transpose method so that (new_matrix get(y, x)) == 
-# matrix get(x,) on the original list
+# matrix get(x,y) on the original list
+
+flipFirstTwoArgs := method(slotName,
+    self getSlot(slotName) setArgumentNames( list( 
+        self getSlot(slotName) argumentNames at(1), 
+        self getSlot(slotName) argumentNames at(0),
+        self getSlot(slotName) argumentNames rest rest
+    ) flatten)
+)
+
 List2D transpose := method(
-   self origGet := List2D getSlot("get")
-   self get = method(x, y, origGet(y, x))
-   
-   self origSet := List2D getSlot("set")
-   self set = method(x, y, origSet(y, x))
+    self get = flipFirstTwoArgs("get")
+    self set = flipFirstTwoArgs("set")
 )
 
 "Transposing a matrix" println
-"2, 4: " print
-firstMatrix get(2,4) println
-"4, 2: " print
-firstMatrix get(4,2) println
-"transpose" println
+"2, 4: " print; firstMatrix get(2,4) println
+"4, 2: " print; firstMatrix get(4,2) println
+
+"transpose!" println
 firstMatrix transpose
-"2, 4: " print
-firstMatrix get(2,4) println
-"4, 2: " print
-firstMatrix get(4,2) println
+
+"2, 4: " print; firstMatrix get(2,4) println
+"4, 2: " print; firstMatrix get(4,2) println
+"Set 5, 3 to NEW" println; firstMatrix set(5,3, "NEW") 
+"5, 3: " print; firstMatrix get(5,3) println
+"3, 5: " print; firstMatrix get(3,5) println
+
+"transpose again!" println
+firstMatrix transpose
+
+"2, 4: " print; firstMatrix get(2,4) println
+"4, 2: " print; firstMatrix get(4,2) println
+"5, 3: " print; firstMatrix get(5,3) println
+"3, 5: " print; firstMatrix get(3,5) println
 
 # 7. Write the matrix to a file, and read a matrix from a file.
 
