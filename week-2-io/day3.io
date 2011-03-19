@@ -47,7 +47,9 @@ curlyBrackets := method(
 )
 
 "\nBracket list syntax:" println
+"{1,2,3,4,5} println" println
 {1,2,3,4,5} println
+"{\"a\", \"b\", \"c\", \"d\", \"e\"} println" println
 {"a", "b", "c", "d", "e"} println
 
 # that was unexpectedly easy and elegant. I almost feel like I've missed something
@@ -55,7 +57,7 @@ curlyBrackets := method(
 
 # 3. Enhance the XML program to handle attributes: if the first argument is a
 # map (use the curly brackets syntax), add attributes to the XML program. For
-# example: book({"author": "Tate"}...) would print <book author="Tate">:
+# example: book({"author": "Tate"}...) would print <book author="Tate">
 
 OperatorTable addAssignOperator(":", "atPutNumber")
 
@@ -65,20 +67,19 @@ Map atPutNumber := method(
         call evalArgAt(1)
     )
 )
-
-Map printAsAttributes := method(
-    self foreach(k, v,
-        write(" " .. k .. "=\"" .. v .. "\"")
-    )
-)
         
-
 curlyBrackets := method(
     r := Map clone
     call message arguments foreach(arg,
         r doMessage(arg)
     )
     r
+)
+
+Map printAsAttributes := method(
+    self foreach(k, v,
+        write(" " .. k .. "=\"" .. v .. "\"")
+    )
 )
 
 Builder forward = method(
@@ -89,7 +90,7 @@ Builder forward = method(
         arg,
         if(isFirst,
             if(arg name == "curlyBrackets", 
-                self doMessage(arg) printAsAttributes
+                (self doMessage(arg)) printAsAttributes
             )
 
             write(">\n")
@@ -104,9 +105,6 @@ Builder forward = method(
 )
 
 "\nBuilder syntax with attributes:" println
-Builder ul(
-            li("Io"),
-            li({"a":"b"}, "Lua"),
-            li("JavaScript")
-        )
-
+s := File with("builderSyntax.txt") openForReading contents
+html := doString(s)
+html println
