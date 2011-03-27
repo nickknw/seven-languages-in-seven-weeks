@@ -15,7 +15,7 @@
 %
 %   3. One online reference for the Prolog version you're using
 %
-%   http://www.gprolog.org/manual/gprolog.html
+%   http://www.swi-prolog.org/pldoc/index.html
 
 % Do:
 %
