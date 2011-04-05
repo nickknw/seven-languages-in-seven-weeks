@@ -4,7 +4,6 @@
 % work?
 %
 % Fibonacci - http://cubbi.com/fibonacci/prolog.html
-% 
 
     fib(0,0).
     fib(1,1).
@@ -63,7 +62,55 @@
 % Do:
 %
 % 1. Reverse the elements of a list
+
+    reverse(A,R) :- reverse(A,[],R).
+    reverse([X|Y],Z,W) :- reverse(Y,[X|Z],W).
+    reverse([],X,X).
+
+% ended up using the example from the tutorial - even then it still took a bit
+% to make sense to me. The middle accumulation parameter specifically. I'm going
+% to try the problem that the tutorial gives immediately after: 
+% 
+% ------------
 %
+% Write a two-parameter version of 'reverse' that does not use the accumulating
+% parameter idea. Use 'append' instead, for example, where one rule would be
+% paraphrased like this ...
+%   
+%   reverse list [X|R] by reversing R to get T, then append T to [X]
+%
+% What about the efficiency of this version? Compare it to the given 'reverse'
+% above.
+%
+% ------------
+%
+% This is the way I was attempting to do it first as well. It is (probably)
+% less efficient than the first version, because when I append an element to the
+% end of the list it likely has to walk the list each time. Don't know for sure
+% without measuring though.
+
+    reverseA([X|R], Result) :- reverse(R, T), append(T, [X], Result).
+    reverseA([X], X).
+
 % 2. Find the smallest element of a list
-%
+
+    min(A,A,A).
+    min(A,B,B) :- B < A.
+    min(A,B,A) :- A < B.
+
+    minInList([X|XS], M) :- minInList(XS, M1), min(X, M1, M).
+    minInList([X], X).
+
 % 3. Sort the elements of a list.
+%
+% I'm just going to go for a very simple sort.
+
+    takeout(X, [X|R], R).
+    takeout(X, [F|R], [F|S]) :- takeout(X,R,S).
+
+    mySort(List, [Min|Sorted]) :- 
+        minInList(List, Min), 
+        takeout(Min, List, Rest), 
+        mySort(Rest, Sorted).
+    mySort([X], [X]).
+
