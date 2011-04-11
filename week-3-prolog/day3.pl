@@ -54,7 +54,7 @@
     % after testing that, they don't work well because they are very slow. The
     % constraint programming library does something special to make this work
     % fast, so let's use it.
-    use_module(library(clpfd)).
+    :- use_module(library(clpfd)).
 
     valid([]).
     valid([Head|Tail]) :-
@@ -87,7 +87,8 @@
 
     valid([Row1, Row2, Row3, Row4,
            Col1, Col2, Col3, Col4,
-           Square1, Square2, Square3, Square4]).
+           Square1, Square2, Square3, Square4]),
+    label(Solution).
 
 % 2. Make the Sudoku solver print prettier solutions.
 %
