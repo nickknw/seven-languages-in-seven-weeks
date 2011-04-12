@@ -140,7 +140,7 @@
 % tuple, represent each queen with an integer, from 1-8. Get the row of a queen
 % by its position in the list and the column by the value in the list.
 
-    valid_queen(Col) :- member(Col, [1,2,3,4,5,6,7,8]).
+    valid_queen((_, Col)) :- member(Col, [1,2,3,4,5,6,7,8]).
 
     valid_board([]).
     valid_board([Head|Tail]) :- valid_queen(Head), valid_board(Tail).
@@ -167,13 +167,9 @@
         diags1(Board, Diags1),
         diags2(Board, Diags2),
 
-        fd_all_different(Cols),
-        fd_all_different(Diags1),
-        fd_all_different(Diags2).
+        all_different(Cols),
+        all_different(Diags1),
+        all_different(Diags2).
 
-% Alright, I'm not even sure how I'm supposed to call this now.
-% I thought it should work with just 'Board' or a variable. Then I tried the
-% last invocation. All I get is 'false'. I have no idea where it is going wrong.
-% I think I am going to have to leave Prolog for now and come back to it later
-%
-% [(1, A), (2, B), (3, C), (4, D), (5, E), (6, F), (7, G), (8, H)]
+
+% Call with eight_queens(Board).
