@@ -62,8 +62,7 @@
         valid(Tail).
 
     % beginning of sudoku rule itself
-    sudoku(Puzzle, Solution) :- 
-    Solution = Puzzle,
+    sudoku(Puzzle) :- 
     Puzzle = [S11, S12, S13, S14,
               S21, S22, S23, S24,
               S31, S32, S33, S34,
@@ -88,10 +87,17 @@
     valid([Row1, Row2, Row3, Row4,
            Col1, Col2, Col3, Col4,
            Square1, Square2, Square3, Square4]),
-    label(Solution).
+
+    pretty_print(Puzzle).
+
 
 % 2. Make the Sudoku solver print prettier solutions.
-%
+
+    pretty_print([]).
+    pretty_print([Col1, Col2, Col3, Col4 | RestOfPuzzle]) :- 
+        writeln([Col1, Col2, Col3, Col4]),
+        pretty_print(RestOfPuzzle).
+
 % 3. Solve the Eight Queens problem by taking a list of queens. Rather than a
 % tuple, represent each queen with an integer, from 1-8. Get the row of a queen
 % by its position in the list and the column by the value in the list.
