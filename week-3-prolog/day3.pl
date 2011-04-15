@@ -140,6 +140,8 @@
 % tuple, represent each queen with an integer, from 1-8. Get the row of a queen
 % by its position in the list and the column by the value in the list.
 
+% ...I think I'm going to leave this one.
+
     valid_queen((_, Col)) :- member(Col, [1,2,3,4,5,6,7,8]).
 
     valid_board([]).
