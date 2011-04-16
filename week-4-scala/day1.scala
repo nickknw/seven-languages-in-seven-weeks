@@ -128,8 +128,8 @@ object Game {
             }
         }
 
-        println(TicTac.whoWon(board))
         printBoard(board)
+        println(TicTac.whoWon(board))
         println("")
     }
 
@@ -137,9 +137,9 @@ object Game {
         println("\n   0   1   2")
         println("0  %s | %s | %s".format(board(0)(0), board(0)(1), board(0)(2)))
         println("  ---+---+---")
-        println("0  %s | %s | %s".format(board(1)(0), board(1)(1), board(1)(2)))
+        println("1  %s | %s | %s".format(board(1)(0), board(1)(1), board(1)(2)))
         println("  ---+---+---")
-        println("0  %s | %s | %s".format(board(2)(0), board(2)(1), board(2)(2)))
+        println("2  %s | %s | %s".format(board(2)(0), board(2)(1), board(2)(2)))
         println("")
     }
 
