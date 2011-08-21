@@ -1,6 +1,10 @@
 Exercises from *Seven Languages in Seven Weeks*
 ===============================================
 
+[Seven Languages In Seven Weeks project home page.]() When I resume
+working on this project the project home page will be updated to reflect my
+progress.
+
 As I work through the exercises in the book [*Seven Languages in Seven
 Weeks*](http://www.pragprog.com/titles/btlang/seven-languages-in-seven-weeks) by
 Bruce Tate, I will keep this repository updated with my solutions,
