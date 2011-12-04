@@ -45,7 +45,12 @@ object TicTac {
 
     val winner = "Player %s won!"
 
-    def whoWon(board: Array[Array[Char]]) :String = {
+    def whoWon(board: Array[String]) : String = {
+        val reformattedBoard : Array[Array[Char]] = board.map(row => row.toCharArray())
+        return whoWon(reformattedBoard)
+    }
+
+    def whoWon(board: Array[Array[Char]]) : String = {
         
         for(i <- 0 to 2) {
             if(same(board(i)(0), board(i)(1), board(i)(2))) {
@@ -81,24 +86,28 @@ object TicTac {
 }
 
 println(TicTac.whoWon(Array(
-    "XOX".toCharArray(),
-    "XOO".toCharArray(),
-    "XXO".toCharArray())))
+    "XOX",
+    "XOO",
+    "XXO"
+)))
 
 println(TicTac.whoWon( Array(
-    "XOX".toCharArray(),
-    "XOO".toCharArray(),
-    " XO".toCharArray())))
+    "XOX",
+    "XOO",
+    " XO"
+)))
 
 println(TicTac.whoWon( Array(
-    "XOX".toCharArray(),
-    "XOO".toCharArray(),
-    "OXO".toCharArray())))
+    "XOX",
+    "XOO",
+    "OXO"
+)))
 
 println(TicTac.whoWon( Array(
-    "XXO".toCharArray(),
-    "XOO".toCharArray(),
-    "OXX".toCharArray())))
+    "XXO",
+    "XOO",
+    "OXX"
+)))
 
 // 2. Bonus Problem: Let two players play tic-tac-toe.
 
