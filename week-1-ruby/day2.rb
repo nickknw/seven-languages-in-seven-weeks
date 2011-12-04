@@ -87,6 +87,8 @@ sixteen_numbers.each_slice(4) { |slice| p slice }
 # this: {'grandpa' => {'dad' => 'child 1' => {}, 'child 2' => {} }, 'uncle' =>
 # {'child 3' => {}, 'child 4' => {} } } }.
 
+puts "\n2."
+
 class Tree
     attr_accessor :children, :node_name
 
@@ -132,6 +134,9 @@ tree_test2.visit_all { |node| p node.node_name }
 # occurrences of a phrase anywhere in that line. you will need to do a simple
 # regular expression match and read lines from a file. (This is surprisingly
 # simple in Ruby.) If you want, include line numbers.
+
+puts "\n3."
+
 def rbgrep(pattern, filename) 
     regexp = Regexp.new(pattern)
     File.foreach(filename).with_index { |line, line_num|
