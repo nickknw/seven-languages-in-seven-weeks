@@ -20,6 +20,7 @@ module ActsAsCsv
         attr_accessor :headers, :csv_rows
 
         def read
+            @csv_rows = []
             file = File.new(self.class.to_s.downcase + '.txt')
             @headers = file.gets.chomp.split(', ')
 
@@ -30,7 +31,6 @@ module ActsAsCsv
         end
 
         def initialize
-            @csv_rows = []
             read
         end
 
