@@ -69,5 +69,14 @@ Zerg macroItUp # Will print "Injecting larvae now!"
 # If the code in a slot is stored as a string then you should use something like
 # doString:
 
-Zerg macroHarder := "\"Spreading creep now!\" println"
-doString(Zerg macroHarder)
+Zerg macroHarderSteps := ("\"Spreading creep now!\" println")
+Zerg macroHarder := method(doString(Zerg macroHarderSteps))
+Zerg macroHarder
+
+# Update: Re-reading this now the intent of the question seems obvious! Write a
+# method that, given a method name, will try to execute that method.
+"\nLet's try that again" println
+Zerg specifyMacro := method(name, perform(name))
+Zerg specifyMacro("macroItUp")
+Zerg specifyMacro("macroHarder")
+"Done!" println
