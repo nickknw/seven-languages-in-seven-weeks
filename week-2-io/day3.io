@@ -106,5 +106,4 @@ Builder forward = method(
 
 "\nBuilder syntax with attributes:" println
 s := File with("builderSyntax.txt") openForReading contents
-html := doString(s)
-html println
+doString(s)
