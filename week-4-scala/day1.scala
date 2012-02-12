@@ -41,73 +41,194 @@
 
 println("Testing win detection: \n")
 
-object TicTac {
+sealed abstract class Player
+case object X extends Player
+case object O extends Player
+case object Blank extends Player {
+    override def toString = " "
+}
 
-    val winner = "Player %s won!"
-
-    def whoWon(board: Array[String]) : String = {
-        val reformattedBoard : Array[Array[Char]] = board.map(row => row.toCharArray())
-        return whoWon(reformattedBoard)
+class TicTacToeBoard(board : Array[Array[Player]]) {
+    val rowCount = board.length
+    val columnCount = board(0).length
+    val numInARowNeeded : Int = {
+        // numbers chosen rather arbitrarily by me. I looked at this: http://en.wikipedia.org/wiki/M,n,k-game
+        // and tried to pick numbers that more or less made sense
+        if(rowCount <= 3|| columnCount <= 3)
+        {
+            // tic tac toe or bizarre tiny variants
+            scala.math.min(rowCount, columnCount)
+        } else if(rowCount <= 5) {
+            // connect 4, sort of
+            4
+        } else if(rowCount <= 14) {
+            // gomoku
+            5
+        } else {
+            // connect6. Seems like a good place to leave it
+            6
+        }
     }
 
-    def whoWon(board: Array[Array[Char]]) : String = {
-        
-        for(i <- 0 to 2) {
-            if(same(board(i)(0), board(i)(1), board(i)(2))) {
-                return winner.format(board(i)(0))
+    val winnerText = "Player %s won!"
+
+    def whoWon : String = {
+        val rows = { for(r <- (0 until rowCount)) yield board(r).toArray }
+        val columns = { for(c <- (0 until columnCount)) yield (for(r <- (0 until rowCount)) yield board(r)(c)).toArray }
+        val diagonalLTR = { for(i <- 0 until rowCount) yield board(i)(i) }
+        val diagonalRTL = { for(i <- 0 until rowCount) yield board(i)(rowCount - 1 - i) }
+
+        val checkForWinner = { array : Array[Player] =>
+            TicTacToeBoard.nInARow(numInARowNeeded, array) match {
+                case Some(player) => return winnerText.format(player)
+                case None =>
             }
         }
 
-        for(i <- 0 to 2) {
-            if(same(board(0)(i), board(1)(i), board(2)(i))) {
-                return winner.format(board(0)(i))
-            }
-        }
+        rows foreach checkForWinner
+        columns foreach checkForWinner
+        checkForWinner(diagonalLTR.toArray)
+        checkForWinner(diagonalRTL.toArray)
 
-        // diagonals
-        if(same(board(0)(0), board(1)(1), board(2)(2))) {
-            return winner.format(board(0)(0))
-        }
-
-        if(same(board(2)(0), board(1)(1), board(0)(2))) {
-            return winner.format(board(2)(0))
-        }
-
-        if(board.map(row => row.contains(' ')).contains(true)) {
+        if(board.map(row => row.contains(Blank)).contains(true)) {
             return "No winner yet!"
         }
 
         return "It's a tie!"
     }
 
-    def same(a:Char, b:Char, c:Char) :Boolean = {
-        return a == b && b == c && a != ' '
+    override def toString : String = {
+        var boardRepresentation = ""
+
+        def p = { str : String => boardRepresentation = boardRepresentation.concat(str + "\n") }
+
+        val rowCount = board.length
+        val columnCount = board(0).length
+
+        val topLine = (1 until columnCount).foldLeft("   ┌")((acc, c) => acc.concat("───┬")).concat("───┐")
+        val middleLine = (0 until columnCount).foldLeft("   │")((acc, c) => acc.concat("───│"))
+        val bottomLine = (1 until columnCount).foldLeft("   └")((acc, c) => acc.concat("───┴")).concat("───┘")
+
+        p("")
+        p((0 until columnCount).foldLeft("     ")((acc, n) => acc.concat("%-4s".format(TicTacToeBoard.numToAlpha(n)))))
+        p(topLine)
+        for(r <- 0 until rowCount) {
+            var rowString = "%-3d".format(r).concat("│")
+            for(c <- 0 until columnCount) {
+                rowString = rowString.concat(" %s │".format(board(r)(c)))
+            }
+            p(rowString)
+            if(r < rowCount-1) {
+                p(middleLine)
+            }
+        }
+        p(bottomLine)
+        p("")
+
+        return boardRepresentation
+    }
+
+    def validMove(row : Int, col : Int) : Boolean = {
+        if(board(row)(col) != Blank) {
+            return false
+        }
+
+        return true
+    }
+
+    def update(row : Int, col : Int, player : Player) = {
+        board(row)(col) = player
     }
 }
 
-println(TicTac.whoWon(Array(
+object TicTacToeBoard {
+
+    def create(size : Int) : TicTacToeBoard = {
+        create(size, size)
+    }
+
+    def create(rows : Int, cols : Int) : TicTacToeBoard = {
+        return new TicTacToeBoard(Array.fill(rows, cols)(Blank))
+    }
+
+    def create(stringBoard : Array[String]) : TicTacToeBoard = {  
+        return new TicTacToeBoard(stringBoard.map(row => getPlayersFromString(row)))
+    }
+
+    private def getPlayersFromString(row : String) : Array[Player] = {
+        row.map(char => { if(char == 'X') X : Player else if(char == 'O') O : Player else Blank : Player } ).toArray
+    }
+
+    private def threeInARow(list : List[Player]) : Option[Player] = list match {
+        case Nil => None
+        case x :: y :: z :: tail if x == y && y == z && z != Blank => Some(z)
+        case _ :: tail => threeInARow(tail)
+    }
+
+    private def nInARow(n : Int, array : Array[Player]) : Option[Player] = {
+        for(i <- 0 until array.length - n) {
+            var allTrue = true;
+            for(j <- i+1 until i+n) {
+                allTrue = allTrue && array(j-1) == array(j) && array(j) != Blank
+            }
+            if(allTrue) {
+                return Some(array(i))
+            }
+        }
+
+        return None
+    }
+
+    private def numToAlpha(number : Int) : String = {
+        var dividend = number + 1 // internally, treat 1 as A - just makes it easier
+        var alphabetEquivalent = ""
+        var modulo = 0
+
+        while(dividend > 0) {
+            modulo = (dividend - 1) % 26
+            alphabetEquivalent = (65 + modulo).toChar + alphabetEquivalent
+            dividend = (dividend - modulo) / 26
+        }
+
+        return alphabetEquivalent
+    }
+}
+
+println(TicTacToeBoard.create(Array(
     "XOX",
     "XOO",
     "XXO"
-)))
+)).whoWon)
 
-println(TicTac.whoWon( Array(
+println(TicTacToeBoard.create(Array(
+    "XOX",
+    "OOO",
+    "XXO"
+)).whoWon)
+
+println(TicTacToeBoard.create(Array(
     "XOX",
     "XOO",
     " XO"
-)))
+)).whoWon)
 
-println(TicTac.whoWon( Array(
+println(TicTacToeBoard.create(Array(
     "XOX",
     "XOO",
     "OXO"
-)))
+)).whoWon)
 
-println(TicTac.whoWon( Array(
+println(TicTacToeBoard.create(Array(
     "XXO",
     "XOO",
     "OXX"
-)))
+)).whoWon)
+
+println(TicTacToeBoard.create(Array(
+    "XXO",
+    "XXO",
+    "OOX"
+)).whoWon)
 
 // 2. Bonus Problem: Let two players play tic-tac-toe.
 
@@ -115,10 +236,14 @@ println("\nGame begin:")
 
 object Game {
     def main(args:Array[String]) {
-        var board = Array("   ".toCharArray(), "   ".toCharArray(), "   ".toCharArray())
-        var player = 'X'
-        while(TicTac.whoWon(board) == "No winner yet!") {
-            printBoard(board)
+        print("Enter board size: ")
+        val size = Console.readInt
+        var board = TicTacToeBoard.create(size)
+        println("\n" + board.numInARowNeeded + " in a row to win (" + size + "x" + size + " board)")
+
+        var player : Player = X
+        while(board.whoWon == "No winner yet!") {
+            println(board)
             println("Player %s's turn.".format(player))
 
             print("Enter row: ")
@@ -127,42 +252,21 @@ object Game {
             print("Enter column: ")
             val col = Console.readInt
 
-            if(valid(board, row, col)) {
-                board(row)(col) = player
+            if(board.validMove(row, col)) {
+                board.update(row, col, player)
 
-                player = if(player == 'X') 'O' else 'X'
+                player = if(player == X) O else X
             }
             else {
                 println("\nCan't move there, try again!")
             }
         }
 
-        printBoard(board)
-        println(TicTac.whoWon(board))
-        println("")
+        println(board)
+        println(board.whoWon)
+        println
     }
 
-    def printBoard(board:Array[Array[Char]]) = {
-        println("\n   0   1   2")
-        println("0  %s | %s | %s".format(board(0)(0), board(0)(1), board(0)(2)))
-        println("  ---+---+---")
-        println("1  %s | %s | %s".format(board(1)(0), board(1)(1), board(1)(2)))
-        println("  ---+---+---")
-        println("2  %s | %s | %s".format(board(2)(0), board(2)(1), board(2)(2)))
-        println("")
-    }
-
-    def valid(board:Array[Array[Char]], row:Int, col:Int):Boolean = {
-        if(row > 2 || row < 0 || col > 3 || col < 0) {
-            return false
-        }
-
-        if(board(row)(col) != ' ') {
-            return false
-        }
-
-        return true
-    }
 }
 
 Game.main(null)
