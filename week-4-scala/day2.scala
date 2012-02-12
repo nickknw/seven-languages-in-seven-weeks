@@ -8,11 +8,8 @@
 //
 // 2. What makes a closure different from a code block
 //
-//    I'm not sure what this question is looking for either. I guess that a code
-//    block is a closure, but a closure is not necessarily a code block. A code
-//    block is just a way to create a closure.
-//
-//    Hopefully I've got that right.
+//    I'm not sure I've got my terminology straight here, but I will give it a go.
+//    In Scala, a code block is a pieces of syntax that creates closures.
 //
 // Do:
 //
@@ -22,8 +19,10 @@
 println("\n1.")
 
 var stringList = List("here", "is", "a", "list", "of", "strings")
-var totalStringSize = stringList.foldLeft(0) ( (total, string) => total + string.length )
+var totalStringSize = stringList.foldLeft(0)((total, string) => total + string.length)
+var totalStringSize2 = (0 /: stringList) {(total, string) => total + string.length }
 println(totalStringSize)
+println(totalStringSize2)
 
 // 2. Write a Censor trait with a method that will replace the curse words Shoot
 //    and Darn with Pucky and Beans alternatives. Use a map to store the curse
@@ -40,10 +39,10 @@ trait Censor {
     )
 
     def setCurseWords(newCurseWords : Map[String, String]) = {
-        curseWords = newCurseWords;
+        curseWords = newCurseWords
     }
 
-    def censorThyself (suspectPhrase : String) : String = {
+    def censorThyselfVillain (suspectPhrase : String) : String = {
        var wholesomePhrase = suspectPhrase
 
        for ((key, value) <- curseWords) {
@@ -54,41 +53,35 @@ trait Censor {
     }
 }
 
-class FoulMouthedGoat {
-    def speakFrankly() : String = {
-        return "Shoot, my darn head is stuck in the dumb freaking door. Holy gosh Batman!"
-    }
-}
+class PolitenessEnforcer extends Censor
 
-class PoliteFowl extends Censor
+var enforcer = new PolitenessEnforcer()
 
-val delinquent = new FoulMouthedGoat()
-val wordEnforcer = new PoliteFowl()
+val rudePhrase = "Shoot, my darn head is stuck in the dumb freaking door. Holy gosh Batman!"
 
 println("Spoken frankly: ")
-println(delinquent.speakFrankly())
+println(rudePhrase)
 
-println("The polite fowl menaces with spikes of iron: ")
-println(wordEnforcer.censorThyself(delinquent.speakFrankly()))
+println("The enforcer menaces with spikes of brass: ")
+println(enforcer.censorThyselfVillain(rudePhrase))
 
 // 3. Load the curse words and alternatives from a file.
-// well, it doesn't handle failure cases nicely, but it works
 
-val source = scala.io.Source.fromFile("curseWords.txt")
-val lines = source.getLines
-source.close ()
+import scala.io.Source._
+
+println("\n3.")
 
 var cursesFromFile = Map.empty[String, String]
 
-for (line <- lines) {
+fromFile("curseWords.txt").getLines.foreach { line =>
     val curseWordPair = line.split('|')
     if(curseWordPair.length == 2) {
         cursesFromFile += ("(?i)" + curseWordPair(0).trim) -> curseWordPair(1).trim
     }
 }
 
-val stricterWordEnforcer = new PoliteFowl()
-stricterWordEnforcer.setCurseWords(cursesFromFile)
+val stricterEnforcer = new PolitenessEnforcer()
+stricterEnforcer.setCurseWords(cursesFromFile)
 
-println("The polite fowl menaces with spikes of onyx: ")
-println(stricterWordEnforcer.censorThyself(delinquent.speakFrankly()))
+println("The enforcer menaces with spikes of onyx: ")
+println(stricterEnforcer.censorThyselfVillain(rudePhrase))
