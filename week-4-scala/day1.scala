@@ -1,3 +1,4 @@
+// Run this file with scala -Dfile.encoding=UTF-8 day1.scala
 // Find:
 //
 // 1. The Scala API
@@ -51,6 +52,8 @@ case object Blank extends Player {
 class TicTacToeBoard(board : Array[Array[Player]]) {
     val rowCount = board.length
     val columnCount = board(0).length
+    val columnNameMapping = (0 until 5*columnCount).map(n => (TicTacToeBoard.numToAlpha(n), n)).toMap
+
     val numInARowNeeded : Int = {
         // numbers chosen rather arbitrarily by me. I looked at this: http://en.wikipedia.org/wiki/M,n,k-game
         // and tried to pick numbers that more or less made sense
@@ -73,10 +76,28 @@ class TicTacToeBoard(board : Array[Array[Player]]) {
     val winnerText = "Player %s won!"
 
     def whoWon : String = {
-        val rows = { for(r <- (0 until rowCount)) yield board(r).toArray }
-        val columns = { for(c <- (0 until columnCount)) yield (for(r <- (0 until rowCount)) yield board(r)(c)).toArray }
-        val diagonalLTR = { for(i <- 0 until rowCount) yield board(i)(i) }
-        val diagonalRTL = { for(i <- 0 until rowCount) yield board(i)(rowCount - 1 - i) }
+        val rows = { 
+            for(r <- 0 until rowCount) 
+                yield board(r).toArray 
+        }
+        val columns = { 
+            for(c <- 0 until columnCount) yield (
+                for(r <- (0 until rowCount)) 
+                    yield board(r)(c)
+            ).toArray 
+        }
+        val diagonalsLTR = {
+            for(offset <- (1-columnCount) until columnCount) yield (
+                for(row <- 0 until rowCount if offset + row < columnCount && offset + row > -1)
+                    yield(board(row)(row+offset))
+            ).toArray
+        }
+        val diagonalsRTL = {
+            for(offset <- 0 until rowCount + rowCount - 1) yield (
+                for(col <- 0 until columnCount if offset - col < rowCount && offset - col > -1)
+                    yield(board(offset - col)(col))
+            ).toArray
+        }
 
         val checkForWinner = { array : Array[Player] =>
             TicTacToeBoard.nInARow(numInARowNeeded, array) match {
@@ -87,8 +108,8 @@ class TicTacToeBoard(board : Array[Array[Player]]) {
 
         rows foreach checkForWinner
         columns foreach checkForWinner
-        checkForWinner(diagonalLTR.toArray)
-        checkForWinner(diagonalRTL.toArray)
+        diagonalsLTR foreach checkForWinner
+        diagonalsRTL foreach checkForWinner
 
         if(board.map(row => row.contains(Blank)).contains(true)) {
             return "No winner yet!"
@@ -129,6 +150,9 @@ class TicTacToeBoard(board : Array[Array[Player]]) {
     }
 
     def validMove(row : Int, col : Int) : Boolean = {
+        if(row >= rowCount || col >= columnCount) {
+            return false
+        }
         if(board(row)(col) != Blank) {
             return false
         }
@@ -138,6 +162,10 @@ class TicTacToeBoard(board : Array[Array[Player]]) {
 
     def update(row : Int, col : Int, player : Player) = {
         board(row)(col) = player
+    }
+
+    def columnNumber(columnName : String) : Int = {
+        return columnNameMapping(columnName)
     }
 }
 
@@ -166,7 +194,7 @@ object TicTacToeBoard {
     }
 
     private def nInARow(n : Int, array : Array[Player]) : Option[Player] = {
-        for(i <- 0 until array.length - n) {
+        for(i <- 0 until array.length - (n-1)) {
             var allTrue = true;
             for(j <- i+1 until i+n) {
                 allTrue = allTrue && array(j-1) == array(j) && array(j) != Blank
@@ -179,19 +207,20 @@ object TicTacToeBoard {
         return None
     }
 
-    private def numToAlpha(number : Int) : String = {
+    def numToAlpha(number : Int) : String = {
         var dividend = number + 1 // internally, treat 1 as A - just makes it easier
-        var alphabetEquivalent = ""
+        var letters = ""
         var modulo = 0
 
         while(dividend > 0) {
             modulo = (dividend - 1) % 26
-            alphabetEquivalent = (65 + modulo).toChar + alphabetEquivalent
+            letters = (65 + modulo).toChar + letters
             dividend = (dividend - modulo) / 26
         }
 
-        return alphabetEquivalent
+        return letters
     }
+
 }
 
 println(TicTacToeBoard.create(Array(
@@ -230,11 +259,29 @@ println(TicTacToeBoard.create(Array(
     "OOX"
 )).whoWon)
 
+println(TicTacToeBoard.create(Array(
+    "OXOXO",
+    "XXOXO",
+    "OXXOX",
+    "OOXXO",
+    "OOXXO"
+)).whoWon)
+
+println(TicTacToeBoard.create(Array(
+    "OXOXO",
+    "XXOXO",
+    "OXXOX",
+    "OOOXO",
+    "OOXXO"
+)).whoWon)
+
 // 2. Bonus Problem: Let two players play tic-tac-toe.
 
 println("\nGame begin:")
 
 object Game {
+    val Position = """([A-Za-z]+)(\d+)""".r
+
     def main(args:Array[String]) {
         print("Enter board size: ")
         val size = Console.readInt
@@ -246,20 +293,29 @@ object Game {
             println(board)
             println("Player %s's turn.".format(player))
 
-            print("Enter row: ")
-            val row = Console.readInt
+            var validMove = false
+            var col = -1
+            var row = -1
+            while(!validMove) {
+                var input = ""
+                try {
+                    print("Enter square: (e.g. B2): ")
+                    input = Console.readLine
+                    val Position(columnName, rowNumber) = input
+                    row = rowNumber.toInt
+                    col = board.columnNumber(columnName)
+                } catch {
+                    case e => { println("Error reading input: Could not understand \"" + input + "\"") } 
+                }
 
-            print("Enter column: ")
-            val col = Console.readInt
-
-            if(board.validMove(row, col)) {
-                board.update(row, col, player)
-
-                player = if(player == X) O else X
+                validMove = board.validMove(row, col)
+                if(!validMove) {
+                    println("Can't move there, try again!\n")
+                }
             }
-            else {
-                println("\nCan't move there, try again!")
-            }
+
+            board.update(row, col, player)
+            player = if(player == X) O else X
         }
 
         println(board)
