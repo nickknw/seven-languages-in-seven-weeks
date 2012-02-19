@@ -55,9 +55,34 @@
 % 3. (optional) What are some of the problems of dealing with "not" expressions? Why
 % do you have to be careful with negation in Prolog?
 %
-% Because negation of X doesn't mean that X is false, it means that X can't be
-% proven true.
+% Negation in Prolog is not *logical negation*, it is *negation as failure*.  So
+% `not(X)` doesn't mean that X is false (like `¬X` would), it means that X can't
+% be proven true. Something else you have to be careful with is putting negated
+% predicates in the right order. Negation as failure is implemented using the
+% `cut` and `fail` predicates. The short story is negating a predicate can
+% cause subsequent predicates to be ignored.
 %
+% For a better and more in-depth explanation of `cut` and negation as failure, I
+% strongly recommend the following links:
+%
+% * Negation In Prolog - http://pwnetics.wordpress.com/2011/04/10/negation-in-prolog/
+% The author uses the wallace and grommit example from this book to show how
+% assuming logical negation can lead to subtle errors.
+%
+% * Negation as failure - http://cs.union.edu/~striegnk/learn-prolog-now/html/node90.html#sec.l10.negation.as.failure
+% A highly readable explanation of how negation as failure really works. Here is
+% one of the opening paragraphs which really helped make it click for me:
+%
+% > As a first step, let's introduce another built in predicate fail/0. As its name
+% > suggests, fail is a special symbol that will immediately fail when Prolog
+% > encounters it as a goal. That may not sound too useful, but remember: when
+% > Prolog fails, it tries to backtrack. Thus fail can be viewed as an instruction
+% > to force backtracking. And when used in combination with cut, which blocks
+% > backtracking, fail enables us to write some interesting programs, and in
+% > particular, it lets us define exceptions to general rules.   
+%
+% If you find you need more background information first, try the page where they
+% introduce cut: http://cs.union.edu/~striegnk/learn-prolog-now/html/node88.html#sec.l10.cut
 %
 % Do:
 %
@@ -67,9 +92,10 @@
     reverse([X|Y],Z,W) :- reverse(Y,[X|Z],W).
     reverse([],X,X).
 
-% ended up using the example from the tutorial - even then it still took a bit
-% to make sense to me. The middle accumulation parameter specifically. I'm going
-% to try the problem that the tutorial gives immediately after: 
+% I ended up using the example from the tutorial I was following - even then it
+% still took a bit to make sense to me. The middle accumulation parameter
+% specifically. I'm going to try the problem that the tutorial gives immediately
+% after: 
 % 
 % ------------
 %
