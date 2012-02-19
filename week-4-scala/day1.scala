@@ -1,4 +1,5 @@
-// Run this file with scala -Dfile.encoding=UTF-8 day1.scala
+// Run this file with 'scala -Dfile.encoding=UTF-8 day1.scala'
+// and/or with: 'scala -howtorun:script day1.scala'
 // Find:
 //
 // 1. The Scala API
@@ -26,7 +27,6 @@
 // 3. A discussion of val versus var
 // 
 //      http://stackoverflow.com/questions/1791408/what-is-the-difference-between-a-var-and-val-definition-in-scala
-//
 
 // Do:
 //
@@ -34,11 +34,6 @@
 //    characters and detect the winner or whether there is a tie or no winner yet.
 //    Use classes where appropriate.
 //
-//  run with: 'scala -howtorun:script day1.scala'
-//
-//  I'm not especially happy with my solution here. It feels kind of ugly, but I
-//  haven't been able to place exactly what would make it better without just
-//  being overkill.
 
 println("Testing win detection: \n")
 
