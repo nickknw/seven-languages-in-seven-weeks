@@ -1,5 +1,5 @@
 // Run this file with 'scala -Dfile.encoding=UTF-8 day1.scala'
-// and/or with: 'scala -howtorun:script day1.scala'
+//
 // Find:
 //
 // 1. The Scala API
@@ -35,13 +35,26 @@
 //    Use classes where appropriate.
 //
 
-println("Testing win detection: \n")
-
 sealed abstract class Player
 case object X extends Player
 case object O extends Player
 case object Blank extends Player {
     override def toString = " "
+}
+
+object GameResult extends Enumeration {
+    type GameResult = Value
+    val X, O, Tie, None = Value
+
+    def displayGameResult(gameResult: GameResult) : String = {
+        val winnerText = "Player %s won!"
+
+        gameResult match {
+            case GameResult.None => "No winner yet!"
+            case GameResult.Tie => "It's a tie!"
+            case player => winnerText.format(player)
+        }
+    }
 }
 
 class TicTacToeBoard(board : Array[Array[Player]]) {
@@ -68,9 +81,7 @@ class TicTacToeBoard(board : Array[Array[Player]]) {
         }
     }
 
-    val winnerText = "Player %s won!"
-
-    def whoWon : String = {
+    def determineWinner : GameResult.Value = {
         val rows = { 
             for(r <- 0 until rowCount) 
                 yield board(r).toArray 
@@ -94,9 +105,10 @@ class TicTacToeBoard(board : Array[Array[Player]]) {
             ).toArray
         }
 
+        val winnerText = "Player %s won!"
         val checkForWinner = { array : Array[Player] =>
             TicTacToeBoard.nInARow(numInARowNeeded, array) match {
-                case Some(player) => return winnerText.format(player)
+                case Some(player) => return if (player == X) GameResult.X else GameResult.O // non-local return!
                 case None =>
             }
         }
@@ -107,10 +119,10 @@ class TicTacToeBoard(board : Array[Array[Player]]) {
         diagonalsRTL foreach checkForWinner
 
         if(board.map(row => row.contains(Blank)).contains(true)) {
-            return "No winner yet!"
+            return GameResult.None
         }
 
-        return "It's a tie!"
+        return GameResult.Tie
     }
 
     override def toString : String = {
@@ -145,7 +157,7 @@ class TicTacToeBoard(board : Array[Array[Player]]) {
     }
 
     def validMove(row : Int, col : Int) : Boolean = {
-        if(row >= rowCount || col >= columnCount) {
+        if(row >= rowCount || row < 0 || col >= columnCount || col < 0) {
             return false
         }
         if(board(row)(col) != Blank) {
@@ -178,6 +190,20 @@ object TicTacToeBoard {
         return new TicTacToeBoard(stringBoard.map(row => getPlayersFromString(row)))
     }
 
+    def numToAlpha(number : Int) : String = {
+        var dividend = number + 1 // internally, treat 1 as A - just makes it easier
+        var letters = ""
+        var modulo = 0
+
+        while(dividend > 0) {
+            modulo = (dividend - 1) % 26
+            letters = (65 + modulo).toChar + letters
+            dividend = (dividend - modulo) / 26
+        }
+
+        return letters
+    }
+
     private def getPlayersFromString(row : String) : Array[Player] = {
         row.map(char => { if(char == 'X') X : Player else if(char == 'O') O : Player else Blank : Player } ).toArray
     }
@@ -202,80 +228,66 @@ object TicTacToeBoard {
         return None
     }
 
-    def numToAlpha(number : Int) : String = {
-        var dividend = number + 1 // internally, treat 1 as A - just makes it easier
-        var letters = ""
-        var modulo = 0
-
-        while(dividend > 0) {
-            modulo = (dividend - 1) % 26
-            letters = (65 + modulo).toChar + letters
-            dividend = (dividend - modulo) / 26
-        }
-
-        return letters
-    }
-
 }
 
-println(TicTacToeBoard.create(Array(
+// Testing win detection
+
+assert(TicTacToeBoard.create(Array(
     "XOX",
     "XOO",
     "XXO"
-)).whoWon)
+)).determineWinner == GameResult.X)
 
-println(TicTacToeBoard.create(Array(
+assert(TicTacToeBoard.create(Array(
     "XOX",
     "OOO",
     "XXO"
-)).whoWon)
+)).determineWinner == GameResult.O)
 
-println(TicTacToeBoard.create(Array(
+assert(TicTacToeBoard.create(Array(
     "XOX",
     "XOO",
     " XO"
-)).whoWon)
+)).determineWinner == GameResult.None)
 
-println(TicTacToeBoard.create(Array(
+assert(TicTacToeBoard.create(Array(
     "XOX",
     "XOO",
     "OXO"
-)).whoWon)
+)).determineWinner == GameResult.Tie)
 
-println(TicTacToeBoard.create(Array(
+assert(TicTacToeBoard.create(Array(
     "XXO",
     "XOO",
     "OXX"
-)).whoWon)
+)).determineWinner == GameResult.O)
 
-println(TicTacToeBoard.create(Array(
+assert(TicTacToeBoard.create(Array(
     "XXO",
     "XXO",
     "OOX"
-)).whoWon)
+)).determineWinner == GameResult.X)
 
-println(TicTacToeBoard.create(Array(
+assert(TicTacToeBoard.create(Array(
     "OXOXO",
     "XXOXO",
     "OXXOX",
     "OOXXO",
     "OOXXO"
-)).whoWon)
+)).determineWinner == GameResult.X)
 
-println(TicTacToeBoard.create(Array(
+assert(TicTacToeBoard.create(Array(
     "OXOXO",
     "XXOXO",
     "OXXOX",
     "OOOXO",
     "OOXXO"
-)).whoWon)
+)).determineWinner == GameResult.O)
 
 // 2. Bonus Problem: Let two players play tic-tac-toe.
 
-println("\nGame begin:")
-
 object Game {
-    val Position = """([A-Za-z]+)(\d+)""".r
+    val Position = """([A-Za-z]+)\s*(\d+)""".r
 
     def main(args:Array[String]) {
         print("Enter board size: ")
@@ -284,7 +296,7 @@ object Game {
         println("\n" + board.numInARowNeeded + " in a row to win (" + size + "x" + size + " board)")
 
         var player : Player = X
-        while(board.whoWon == "No winner yet!") {
+        while(board.determineWinner == GameResult.None) {
             println(board)
             println("Player %s's turn.".format(player))
 
@@ -298,7 +310,7 @@ object Game {
                     input = Console.readLine
                     val Position(columnName, rowNumber) = input
                     row = rowNumber.toInt
-                    col = board.columnNumber(columnName)
+                    col = board.columnNumber(columnName.toUpperCase)
                 } catch {
                     case e => { println("Error reading input: Could not understand \"" + input + "\"") } 
                 }
@@ -314,10 +326,10 @@ object Game {
         }
 
         println(board)
-        println(board.whoWon)
+        println(GameResult.displayGameResult(board.determineWinner))
         println
     }
 
 }
 
-Game.main(null)
+Game.main(null) // run it!
