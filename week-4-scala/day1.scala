@@ -157,10 +157,7 @@ class TicTacToeBoard(board : Array[Array[Player]]) {
     }
 
     def validMove(row : Int, col : Int) : Boolean = {
-        if(row >= rowCount || row < 0 || col >= columnCount || col < 0) {
-            return false
-        }
-        if(board(row)(col) != Blank) {
+        if(row >= rowCount || row < 0 || col >= columnCount || col < 0 || board(row)(col) != Blank ) {
             return false
         }
 
