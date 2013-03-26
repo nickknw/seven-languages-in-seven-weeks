@@ -58,8 +58,13 @@ object GameResult extends Enumeration {
 }
 
 class TicTacToeBoard(board : Array[Array[Player]]) {
+
+    def this(stringBoard: Array[String]) = this(stringBoard.map(row => TicTacToeBoard.getPlayersFromString(row)))
+    def this(rows: Int, cols: Int) = this(Array.fill(rows, cols)(Blank) : Array[Array[Player]])
+    def this(size: Int) = this(size, size)
+
     val rowCount = board.length
-    val columnCount = board(0).length
+    val columnCount = if (board.isEmpty) 0 else board(0).length
     val columnNameMapping = (0 until 5*columnCount).map(n => (TicTacToeBoard.numToAlpha(n), n)).toMap
 
     val numInARowNeeded : Int = {
@@ -108,7 +113,11 @@ class TicTacToeBoard(board : Array[Array[Player]]) {
         val winnerText = "Player %s won!"
         val checkForWinner = { array : Array[Player] =>
             TicTacToeBoard.nInARow(numInARowNeeded, array) match {
-                case Some(player) => return if (player == X) GameResult.X else GameResult.O // non-local return!
+                case Some(player) => 
+                    // non-local return!
+                    return if (player == X) GameResult.X 
+                    else if (player == O) GameResult.O
+                    else GameResult.None
                 case None =>
             }
         }
@@ -129,9 +138,6 @@ class TicTacToeBoard(board : Array[Array[Player]]) {
         var boardRepresentation = ""
 
         def p = { str : String => boardRepresentation = boardRepresentation.concat(str + "\n") }
-
-        val rowCount = board.length
-        val columnCount = board(0).length
 
         val topLine = (1 until columnCount).foldLeft("   ┌")((acc, c) => acc.concat("───┬")).concat("───┐")
         val middleLine = (0 until columnCount).foldLeft("   │")((acc, c) => acc.concat("───│"))
@@ -175,18 +181,6 @@ class TicTacToeBoard(board : Array[Array[Player]]) {
 
 object TicTacToeBoard {
 
-    def create(size : Int) : TicTacToeBoard = {
-        create(size, size)
-    }
-
-    def create(rows : Int, cols : Int) : TicTacToeBoard = {
-        return new TicTacToeBoard(Array.fill(rows, cols)(Blank))
-    }
-
-    def create(stringBoard : Array[String]) : TicTacToeBoard = {  
-        return new TicTacToeBoard(stringBoard.map(row => getPlayersFromString(row)))
-    }
-
     def numToAlpha(number : Int) : String = {
         var dividend = number + 1 // internally, treat 1 as A - just makes it easier
         var letters = ""
@@ -201,21 +195,21 @@ object TicTacToeBoard {
         return letters
     }
 
-    private def getPlayersFromString(row : String) : Array[Player] = {
+    def getPlayersFromString(row : String) : Array[Player] = {
         row.map(char => { if(char == 'X') X : Player else if(char == 'O') O : Player else Blank : Player } ).toArray
     }
 
-    private def threeInARow(list : List[Player]) : Option[Player] = list match {
+    def threeInARow(list : List[Player]) : Option[Player] = list match {
         case Nil => None
         case x :: y :: z :: tail if x == y && y == z && z != Blank => Some(z)
         case _ :: tail => threeInARow(tail)
     }
 
-    private def nInARow(n : Int, array : Array[Player]) : Option[Player] = {
+    def nInARow(n : Int, array : Array[Player]) : Option[Player] = {
         for(i <- 0 until array.length - (n-1)) {
             var allTrue = true;
             for(j <- i+1 until i+n) {
-                allTrue = allTrue && array(j-1) == array(j) && array(j) != Blank
+                allTrue = allTrue && (array(j-1) == array(j)) && (array(j) != Blank)
             }
             if(allTrue) {
                 return Some(array(i))
@@ -229,43 +223,43 @@ object TicTacToeBoard {
 
 // Testing win detection
 
-assert(TicTacToeBoard.create(Array(
+assert(new TicTacToeBoard(Array(
     "XOX",
     "XOO",
     "XXO"
 )).determineWinner == GameResult.X)
 
-assert(TicTacToeBoard.create(Array(
+assert(new TicTacToeBoard(Array(
     "XOX",
     "OOO",
     "XXO"
 )).determineWinner == GameResult.O)
 
-assert(TicTacToeBoard.create(Array(
+assert(new TicTacToeBoard(Array(
     "XOX",
     "XOO",
     " XO"
 )).determineWinner == GameResult.None)
 
-assert(TicTacToeBoard.create(Array(
+assert(new TicTacToeBoard(Array(
     "XOX",
     "XOO",
     "OXO"
 )).determineWinner == GameResult.Tie)
 
-assert(TicTacToeBoard.create(Array(
+assert(new TicTacToeBoard(Array(
     "XXO",
     "XOO",
     "OXX"
 )).determineWinner == GameResult.O)
 
-assert(TicTacToeBoard.create(Array(
+assert(new TicTacToeBoard(Array(
     "XXO",
     "XXO",
     "OOX"
 )).determineWinner == GameResult.X)
 
-assert(TicTacToeBoard.create(Array(
+assert(new TicTacToeBoard(Array(
     "OXOXO",
     "XXOXO",
     "OXXOX",
@@ -273,7 +267,7 @@ assert(TicTacToeBoard.create(Array(
     "OOXXO"
 )).determineWinner == GameResult.X)
 
-assert(TicTacToeBoard.create(Array(
+assert(new TicTacToeBoard(Array(
     "OXOXO",
     "XXOXO",
     "OXXOX",
@@ -289,7 +283,7 @@ object Game {
     def main(args:Array[String]) {
         print("Enter board size: ")
         val size = Console.readInt
-        var board = TicTacToeBoard.create(size)
+        var board = new TicTacToeBoard(size)
         println("\n" + board.numInARowNeeded + " in a row to win (" + size + "x" + size + " board)")
 
         var player : Player = X
@@ -303,7 +297,7 @@ object Game {
             while(!validMove) {
                 var input = ""
                 try {
-                    print("Enter square: (e.g. B2): ")
+                    print("Enter square: (e.g. A0): ")
                     input = Console.readLine
                     val Position(columnName, rowNumber) = input
                     row = rowNumber.toInt
