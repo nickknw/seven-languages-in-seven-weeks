@@ -113,10 +113,11 @@ class TicTacToeBoard(board : Array[Array[Player]]) {
         val winnerText = "Player %s won!"
         val checkForWinner = { array : Array[Player] =>
             TicTacToeBoard.nInARow(numInARowNeeded, array) match {
-                case Some(player) => return (// non-local return!
-                    if (player == X) GameResult.X 
-                    else if (player == O) GameResult.O
-                    else GameResult.NoResult)
+                case Some(player) => return player match { // non-local return!
+                    case X => GameResult.X
+                    case O => GameResult.O
+                    case other => throw new Exception("Error, '" + other + "' is not a player.")
+                }
                 case None => // do nothing
             }
         }
@@ -204,9 +205,9 @@ object TicTacToeBoard {
         for(i <- 0 until array.length - (n-1)) {
             var allTrue = true;
             for(j <- i+1 until i+n) {
-                allTrue = allTrue && (array(j-1) == array(j)) && (array(j) != Blank)
+                allTrue &= array(j-1) == array(j)
             }
-            if(allTrue) {
+            if(allTrue && array(i) != Blank) {
                 return Some(array(i))
             }
         }
