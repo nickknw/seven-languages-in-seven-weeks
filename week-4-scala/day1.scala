@@ -44,13 +44,13 @@ case object Blank extends Player {
 
 object GameResult extends Enumeration {
     type GameResult = Value
-    val X, O, Tie, None = Value
+    val X, O, Tie, NoResult = Value
 
     def displayGameResult(gameResult: GameResult) : String = {
         val winnerText = "Player %s won!"
 
         gameResult match {
-            case GameResult.None => "No winner yet!"
+            case GameResult.NoResult => "No winner yet!"
             case GameResult.Tie => "It's a tie!"
             case player => winnerText.format(player)
         }
@@ -86,39 +86,38 @@ class TicTacToeBoard(board : Array[Array[Player]]) {
         }
     }
 
-    def determineWinner : GameResult.Value = {
-        val rows = { 
-            for(r <- 0 until rowCount) 
-                yield board(r).toArray 
-        }
-        val columns = { 
-            for(c <- 0 until columnCount) yield (
-                for(r <- (0 until rowCount)) 
-                    yield board(r)(c)
-            ).toArray 
-        }
-        val diagonalsLTR = {
-            for(offset <- (1-columnCount) until columnCount) yield (
-                for(row <- 0 until rowCount if offset + row < columnCount && offset + row > -1)
-                    yield(board(row)(row+offset))
-            ).toArray
-        }
-        val diagonalsRTL = {
-            for(offset <- 0 until rowCount + rowCount - 1) yield (
-                for(col <- 0 until columnCount if offset - col < rowCount && offset - col > -1)
-                    yield(board(offset - col)(col))
-            ).toArray
-        }
+    def rows: Seq[Array[Player]] = {
+        for(r <- 0 until rowCount) 
+            yield board(r)
+    }
 
+    def columns: Seq[Array[Player]] = {
+        for(c <- 0 until columnCount) yield (
+            for(r <- (0 until rowCount)) 
+                yield board(r)(c)).toArray
+    }
+
+    def diagonalsLTR: Seq[Array[Player]] = {
+        for(offset <- (1-columnCount) until columnCount) yield (
+            for(row <- 0 until rowCount if offset + row < columnCount && offset + row > -1)
+                yield(board(row)(row+offset))).toArray
+    }
+
+    def diagonalsRTL: Seq[Array[Player]]  = {
+        for(offset <- 0 until rowCount + rowCount - 1) yield (
+            for(col <- 0 until columnCount if offset - col < rowCount && offset - col > -1)
+                yield(board(offset - col)(col))).toArray
+    }
+
+    def determineWinner : GameResult.Value = {
         val winnerText = "Player %s won!"
         val checkForWinner = { array : Array[Player] =>
             TicTacToeBoard.nInARow(numInARowNeeded, array) match {
-                case Some(player) => 
-                    // non-local return!
-                    return if (player == X) GameResult.X 
+                case Some(player) => return (// non-local return!
+                    if (player == X) GameResult.X 
                     else if (player == O) GameResult.O
-                    else GameResult.None
-                case None =>
+                    else GameResult.NoResult)
+                case None => // do nothing
             }
         }
 
@@ -128,7 +127,7 @@ class TicTacToeBoard(board : Array[Array[Player]]) {
         diagonalsRTL foreach checkForWinner
 
         if(board.map(row => row.contains(Blank)).contains(true)) {
-            return GameResult.None
+            return GameResult.NoResult
         }
 
         return GameResult.Tie
@@ -163,11 +162,7 @@ class TicTacToeBoard(board : Array[Array[Player]]) {
     }
 
     def validMove(row : Int, col : Int) : Boolean = {
-        if(row >= rowCount || row < 0 || col >= columnCount || col < 0 || board(row)(col) != Blank ) {
-            return false
-        }
-
-        return true
+        return !(row >= rowCount || row < 0 || col >= columnCount || col < 0 || board(row)(col) != Blank )
     }
 
     def update(row : Int, col : Int, player : Player) = {
@@ -239,7 +234,7 @@ assert(new TicTacToeBoard(Array(
     "XOX",
     "XOO",
     " XO"
-)).determineWinner == GameResult.None)
+)).determineWinner == GameResult.NoResult)
 
 assert(new TicTacToeBoard(Array(
     "XOX",
@@ -281,44 +276,67 @@ object Game {
     val Position = """([A-Za-z]+)\s*(\d+)""".r
 
     def main(args:Array[String]) {
-        print("Enter board size: ")
-        val size = Console.readInt
+        val size = readBoardSize
         var board = new TicTacToeBoard(size)
         println("\n" + board.numInARowNeeded + " in a row to win (" + size + "x" + size + " board)")
 
         var player : Player = X
-        while(board.determineWinner == GameResult.None) {
+        while(board.determineWinner == GameResult.NoResult) {
             println(board)
             println("Player %s's turn.".format(player))
 
-            var validMove = false
-            var col = -1
-            var row = -1
-            while(!validMove) {
-                var input = ""
-                try {
-                    print("Enter square: (e.g. A0): ")
-                    input = Console.readLine
-                    val Position(columnName, rowNumber) = input
-                    row = rowNumber.toInt
-                    col = board.columnNumber(columnName.toUpperCase)
-                } catch {
-                    case e => { println("Error reading input: Could not understand \"" + input + "\"") } 
-                }
-
-                validMove = board.validMove(row, col)
-                if(!validMove) {
-                    println("Can't move there, try again!\n")
-                }
-            }
-
+            val (row, col) = readNextMove(board)
             board.update(row, col, player)
+
             player = if(player == X) O else X
         }
 
         println(board)
         println(GameResult.displayGameResult(board.determineWinner))
         println
+    }
+
+    def readBoardSize: Int = {
+        var size = -1
+
+        while(size < 1) {
+            try {
+                print("Enter board size: ")
+                size = Console.readInt
+            } catch {
+                case e => { size = -1 }
+            }
+            if (size < 1) {
+                println("Invalid board size. Please enter a number greater than 0.")
+            }
+        }
+
+        return size
+    }
+
+    def readNextMove(board: TicTacToeBoard): (Int, Int) = {
+        var validMove = false
+        var col = -1
+        var row = -1
+        while(!validMove) {
+            var input = ""
+            try {
+                print("Enter square: (e.g. A0): ")
+                input = Console.readLine
+                val Position(columnName, rowNumber) = input
+                row = rowNumber.toInt
+                col = board.columnNumber(columnName.toUpperCase)
+            } catch {
+                case e => { println("Error reading input: Could not understand \"" + input + "\"") }
+            }
+
+            validMove = board.validMove(row, col)
+            if(!validMove) {
+                println("Can't move there, try again!\n")
+            }
+        }
+
+        return (row, col)
     }
 
 }
