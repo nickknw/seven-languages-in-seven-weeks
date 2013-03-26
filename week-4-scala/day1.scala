@@ -162,7 +162,7 @@ class TicTacToeBoard(board : Array[Array[Player]]) {
     }
 
     def validMove(row : Int, col : Int) : Boolean = {
-        return !(row >= rowCount || row < 0 || col >= columnCount || col < 0 || board(row)(col) != Blank )
+        return row < rowCount && row >= 0 && col < columnCount && col >= 0 && board(row)(col) == Blank
     }
 
     def update(row : Int, col : Int, player : Player) = {
