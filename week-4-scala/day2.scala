@@ -9,7 +9,7 @@
 // 2. What makes a closure different from a code block
 //
 //    I'm not sure I've got my terminology straight here, but I will give it a go.
-//    In Scala, a code block is a pieces of syntax that creates closures.
+//    In Scala, a code block is a piece of syntax that creates closures.
 //
 // Do:
 //
@@ -51,6 +51,10 @@ trait Censor {
 
        return wholesomePhrase
     }
+
+    def censorThyselfVillain2 (suspectPhrase : String) : String = {
+        curseWords.foldLeft(suspectPhrase)((acc, pair) => acc.replaceAll(pair._1, pair._2))
+    }
 }
 
 class PolitenessEnforcer extends Censor
@@ -63,7 +67,7 @@ println("Spoken frankly: ")
 println(rudePhrase)
 
 println("The enforcer menaces with spikes of brass: ")
-println(enforcer.censorThyselfVillain(rudePhrase))
+println(enforcer.censorThyselfVillain2(rudePhrase))
 
 // 3. Load the curse words and alternatives from a file.
 
@@ -84,4 +88,4 @@ val stricterEnforcer = new PolitenessEnforcer()
 stricterEnforcer.setCurseWords(cursesFromFile)
 
 println("The enforcer menaces with spikes of onyx: ")
-println(stricterEnforcer.censorThyselfVillain(rudePhrase))
+println(stricterEnforcer.censorThyselfVillain2(rudePhrase))
