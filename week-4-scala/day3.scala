@@ -23,15 +23,26 @@ import org.ccil.cowan.tagsoup.jaxp.SAXFactoryImpl
 import java.net.URL
 
 object PageLoader {
-    def loadPageAsXml(url: String) = {
+    def loadPageAsXml(url: String): Option[Elem] = {
         val tagSoupXmlLoader = XML.withSAXParser(new SAXFactoryImpl().newSAXParser())
-        tagSoupXmlLoader.load(new URL(url))
+        try {
+            return Some(tagSoupXmlLoader.load(new URL(url)))
+        } catch {
+            case e: Exception => {
+                println("Tried to load: " + url)
+                println(e.getMessage())
+                return None
+            }
+        }
     }
 
     def getPageSize(url : String) = Source.fromURL(url).mkString.length
 
     def getNumberOfLinks(url : String) = {
-        (loadPageAsXml(url) \\ "a").length
+        loadPageAsXml(url) match {
+            case None => 0
+            case Some(page) => (page \\ "a").length
+        }
     }
 }
 
@@ -90,19 +101,22 @@ object UrlHelper {
     def getAbsoluteUrl(linkUrl: String, currentUrl: String): String = {
         val absoluteUrl = "^http.*".r
         val relativeToSiteRoot = "/.*".r
+        val mailTo = "^mailto:.*".r
 
         linkUrl match {
             case absoluteUrl() => 
                 linkUrl
             case relativeToSiteRoot() => 
                 combineUrlFragments(getBaseUrl(currentUrl), linkUrl)
+            case mailTo() =>
+                ""
             case _ => 
                 combineUrlFragments(currentUrl, linkUrl)
         }
     }
 
     def combineUrlFragments(url1: String, url2: String): String = {
-        return (url1 + url2).replace("(?<!:)//", "/")
+        return "([^:])//".r.replaceAllIn(url1 + url2, "$1/")
     }
 
     def getBaseUrl(url: String): String = {
@@ -118,17 +132,21 @@ object PageLoaderR {
     def numOfLinksOnPage(page: Node) = (page \\ "a").length
 
     def getPageInfoSeq(url: String, nodeInfoFn: Function[Node, Long], levelsDeep: Int) : Long = {
-        val page = PageLoader.loadPageAsXml(url)
-        val links = page \\ "a" \\ "@href"
-        var result = nodeInfoFn(page)
+        PageLoader.loadPageAsXml(url) match {
+            case None => 0
+            case Some(page) => {
+                val links = page \\ "a" \\ "@href"
+                var result = nodeInfoFn(page)
 
-        if (levelsDeep >= 0) {
-            for(link <- links) {
-                result += getPageInfoSeq(UrlHelper.getAbsoluteUrl(link.text, url), nodeInfoFn, levelsDeep - 1)
+                if (levelsDeep >= 0) {
+                    for(link <- links) {
+                        result += getPageInfoSeq(UrlHelper.getAbsoluteUrl(link.text, url), nodeInfoFn, levelsDeep - 1)
+                    }
+                }
+
+                result
             }
         }
-
-        result
     }
 
     def getPageSizeSeq(url: String) : Long = {
