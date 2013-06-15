@@ -8,16 +8,18 @@ file = File.open("tmp.txt", "w+")
 file.puts "a spoonful is great but I'd rather have a bowl"
 file.close
 
-# safer, less erroro-prone, shorter, more readable
-File.open("tmp.txt", "r").each { |line|
-    puts line
+# safer, less error-prone, more readable
+File.open("tmp2.txt", "w+") { |file|
+    file.puts "a spoonful is great but I'd rather have a bowl"
 }
 
+puts IO.read("tmp.txt")
+puts IO.read("tmp2.txt")
 
 # 2. How would you translate a hash to an array? Can you translate arrays to
 # hashes?
 puts "\n2."
-scores = { gary: 5, nick: 11, ted: 8, the_dude:9 }
+scores = { gary: 5, nick: 11, ted: 8, the_dude: 9 }
 print "hash: "; p scores
 print "array1: "; p scores.to_a
 print "array2: "; p scores.to_a.flatten
@@ -26,8 +28,7 @@ scores_array1 = scores.to_a
 print "array1 to hash again 1: "; p scores_array1.inject(Hash.new) { |memo, pair| memo[pair.first] = pair.last; memo }
 print "array1 to hash again 2: "; p Hash[scores_array1]
 scores_array2 = scores.to_a.flatten
-print "array2 to hash again 1: "; p Hash[scores_array2]
-print "array2 to hash again 2: "; p Hash[*scores_array2]
+print "array2 to hash again 3: "; p Hash[*scores_array2]
 puts "Yup."
 
 # 3. Can you iterate through a hash?
